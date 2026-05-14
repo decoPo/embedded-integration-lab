@@ -1,7 +1,8 @@
 # Setup on Windows
 
-Tested on Windows 11. Should also work on Windows 10. The steps below are
-deliberately minimal — no Docker, no MSYS, no WSL needed.
+Tested on Windows 11 with Node.js 24 LTS, Node-RED 4.1, Dashboard 2.0
+(`@flowfuse/node-red-dashboard` 1.30) and `node-red-node-serialport` 2.0.
+No Docker, MSYS or WSL needed.
 
 ## 1. Install Node.js LTS
 
@@ -15,18 +16,18 @@ node -v
 npm -v
 ```
 
-Both commands should print a version.
+Both should print a version.
 
-## 2. Allow `npm` to run in PowerShell
+## 2. Allow `npm` scripts in PowerShell
 
-If running `npm` produces a `running scripts is disabled on this system`
-error, open **PowerShell as Administrator** once and run:
+If `npm` errors with *running scripts is disabled on this system*, open
+**PowerShell as Administrator** once and run:
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned
 ```
 
-Confirm with `A` (Yes to All). This is a one-time step.
+Confirm with `A`. One-time only.
 
 ## 3. Install Node-RED
 
@@ -42,32 +43,31 @@ node-red
 
 Open <http://127.0.0.1:1880> — the flow editor should load.
 
-## 4. Install the dashboard plugin
+## 4. Install Dashboard 2.0 and serialport
 
-In a new terminal:
+We use **Dashboard 2.0** (`@flowfuse/node-red-dashboard`, Vue 3) — *not*
+the deprecated classic `node-red-dashboard`. They use different node names
+(`ui-chart` vs `chart`, etc.) and different URLs (`/dashboard` vs `/ui`).
+
+Easiest way: install from inside Node-RED.
+
+1. Menu (top-right ☰) → **Manage palette** → tab **Install**.
+2. Search and install:
+   - `@flowfuse/node-red-dashboard`
+   - `node-red-node-serialport`
+3. Close the dialog. Restart Node-RED if it asks (Ctrl+C in the terminal,
+   then `node-red` again).
+
+Or from the command line:
 
 ```powershell
 cd $env:USERPROFILE\.node-red
-npm install node-red-dashboard
+npm install @flowfuse/node-red-dashboard node-red-node-serialport
 ```
 
-Restart Node-RED (Ctrl+C in the original terminal, then `node-red` again).
+The dashboard will then be available at <http://127.0.0.1:1880/dashboard>.
 
-The dashboard is then available at <http://127.0.0.1:1880/ui>.
-
-## 5. (Optional) Install the serial-port plugin
-
-Some Node-RED installs already include a serial node. If the *serial in* and
-*serial out* nodes are missing from the palette:
-
-```powershell
-cd $env:USERPROFILE\.node-red
-npm install node-red-node-serialport
-```
-
-Restart Node-RED again.
-
-## 6. Sanity-check flow (no hardware needed)
+## 5. Sanity check (no hardware)
 
 In the editor, drag in:
 
@@ -75,10 +75,13 @@ In the editor, drag in:
 inject  ──▶  debug
 ```
 
-Click *Deploy*, then click the inject button. The debug pane on the right
-should print a timestamp. If that works, the install is healthy and the
-demo flow can be imported.
+Click **Deploy**, then click the inject button. The debug pane on the right
+should print a timestamp. If that works, the install is healthy.
+
+This is exactly what
+[`demos/01-hello-world-inject/`](../demos/01-hello-world-inject/) imports
+as a ready-made flow.
 
 ## Next
 
-Continue with [`demos/01-node-red-embedded-logger/`](../demos/01-node-red-embedded-logger/).
+Continue with [`demos/02-node-red-imu-dashboard/`](../demos/02-node-red-imu-dashboard/).

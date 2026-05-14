@@ -1,0 +1,273 @@
+[
+    {
+        "id": "tab_live",
+        "type": "tab",
+        "label": "IMU — live hardware",
+        "disabled": false,
+        "info": "Live demo: Arduino Nano ESP32 + MPU6500 on COM30 -> Parse -> Split -> chart + spirit level."
+    },
+    {
+        "id": "ui_base_live",
+        "type": "ui-base",
+        "name": "IMU Demo",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "ui_theme_live",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ui_page_live",
+        "type": "ui-page",
+        "name": "IMU",
+        "ui": "ui_base_live",
+        "path": "/imu",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "ui_theme_live",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "ui_group_live",
+        "type": "ui-group",
+        "name": "Accelerometer",
+        "page": "ui_page_live",
+        "width": 12,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "serial_cfg_live",
+        "type": "serial-port",
+        "serialport": "COM30",
+        "serialbaud": "115200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "waitfor": "",
+        "dtr": "high",
+        "rts": "low",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": "",
+        "responsetimeout": "10000"
+    },
+    {
+        "id": "serial_in_live",
+        "type": "serial in",
+        "z": "tab_live",
+        "name": "serial in (COM30)",
+        "serial": "serial_cfg_live",
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "fn_parse_live"
+            ]
+        ]
+    },
+    {
+        "id": "fn_parse_live",
+        "type": "function",
+        "z": "tab_live",
+        "name": "Parse KEY=VAL;...",
+        "func": "// Accept a string or Buffer carrying one ASCII line, e.g.\n//   AX=0.12;AY=-0.45;AZ=0.98\n// and emit msg.payload as { AX: 0.12, AY: -0.45, AZ: 0.98 }.\nconst raw = (msg.payload && msg.payload.toString) ? msg.payload.toString() : '';\nconst obj = {};\nfor (const part of raw.split(';')) {\n    const [k, v] = part.split('=');\n    if (!k || v === undefined) continue;\n    const num = parseFloat(v);\n    if (!isNaN(num)) obj[k.trim()] = num;\n}\nmsg.payload = obj;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 200,
+        "wires": [
+            [
+                "fn_split_live",
+                "tmpl_level_tab_live"
+            ]
+        ]
+    },
+    {
+        "id": "fn_split_live",
+        "type": "function",
+        "z": "tab_live",
+        "name": "Split AX/AY/AZ -> topic+payload",
+        "func": "// Throttle: emit only every Nth sample to ease browser load.\nconst N = 3;\ncontext.skip = (context.skip || 0) + 1;\nif (context.skip % N !== 0) return null;\nconst p = msg.payload || {};\nconst out = [];\nfor (const key of ['AX', 'AY', 'AZ']) {\n    if (typeof p[key] === 'number') {\n        out.push({ topic: key, payload: p[key] });\n    }\n}\nreturn [out];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 200,
+        "wires": [
+            [
+                "chart_tab_live"
+            ]
+        ]
+    },
+    {
+        "id": "debug_live",
+        "type": "debug",
+        "z": "tab_live",
+        "name": "parsed",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 780,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "chart_tab_live",
+        "type": "ui-chart",
+        "z": "tab_live",
+        "group": "ui_group_live",
+        "name": "",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 0,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 1050,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "tmpl_level_tab_live",
+        "type": "ui-template",
+        "z": "tab_live",
+        "group": "ui_group_live",
+        "page": "",
+        "ui": "",
+        "name": "Spirit Level",
+        "order": 2,
+        "width": 6,
+        "height": 8,
+        "head": "",
+        "format": "<template>\n  <div class=\"level-wrap\">\n    <div class=\"level-ring\">\n      <div class=\"ball\" :style=\"ballStyle\"></div>\n      <div class=\"cross-h\"></div>\n      <div class=\"cross-v\"></div>\n      <div class=\"bullseye\"></div>\n    </div>\n    <div class=\"readout\">AX={{ ax.toFixed(2) }} g &nbsp; AY={{ ay.toFixed(2) }} g</div>\n  </div>\n</template>\n\n<script>\nexport default {\n  data() { return { ax: 0, ay: 0 }; },\n  watch: {\n    msg(m) {\n      const p = m && m.payload;\n      if (p && typeof p.AX === \"number\" && typeof p.AY === \"number\") {\n        this.ax = p.AX;\n        this.ay = p.AY;\n      }\n    }\n  },\n  computed: {\n    ballStyle() {\n      // ±1 g full tilt -> ±45% of container; clamp to stay on the dish.\n      const clamp = v => Math.max(-1, Math.min(1, v));\n      const x = 50 + clamp(this.ax) * 45;\n      // Y axis on screen is flipped vs sensor.\n      const y = 50 - clamp(this.ay) * 45;\n      return { left: x + \"%\", top: y + \"%\" };\n    }\n  }\n}\n</script>\n\n<style scoped>\n.level-wrap { display: flex; flex-direction: column; align-items: center; padding: 8px; }\n.level-ring {\n  position: relative; width: 280px; height: 280px;\n  border: 3px solid #555; border-radius: 50%;\n  background: radial-gradient(circle at 50% 50%, #f5f7fa 0%, #c3cfe2 100%);\n  box-shadow: inset 0 4px 12px rgba(0,0,0,0.15);\n}\n.cross-h, .cross-v { position: absolute; background: rgba(0,0,0,0.25); }\n.cross-h { left: 0; right: 0; top: 50%; height: 1px; }\n.cross-v { top: 0; bottom: 0; left: 50%; width: 1px; }\n.bullseye {\n  position: absolute; left: 50%; top: 50%; width: 60px; height: 60px;\n  border: 2px dashed rgba(0,128,0,0.6); border-radius: 50%;\n  transform: translate(-50%, -50%);\n}\n.ball {\n  position: absolute; width: 28px; height: 28px;\n  background: radial-gradient(circle at 30% 30%, #ff9090, #b30000);\n  border-radius: 50%;\n  box-shadow: 0 2px 4px rgba(0,0,0,0.35);\n  transform: translate(-50%, -50%);\n  transition: left 80ms linear, top 80ms linear;\n}\n.readout { margin-top: 10px; font-family: monospace; font-size: 14px; color: #333; }\n</style>\n",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1050,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    }
+]

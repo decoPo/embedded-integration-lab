@@ -1,41 +1,16 @@
 # Embedded Integration Lab
 
-Public engineering lab focused on embedded integration, telemetry, validation
-and rapid prototyping workflows.
+Small, self-contained demos that connect a real embedded target to practical
+PC-side tooling — dashboards, loggers, instrument automation.
 
-The goal is to share small, self-contained demos that connect a real embedded
-target (STM32, nRF, ESP32, …) to practical PC-side tooling — dashboards,
-loggers, instrument automation, validation reports — and to document what
-worked and what did not.
+Just getting started. Content is added as it is presented or shipped.
 
 ## Demos
 
-| # | Title | Status |
-| - | ----- | ------ |
-| 01 | [Node-RED embedded logger](demos/01-node-red-embedded-logger/) | in progress |
+- [01 — Hello-world: inject → debug](demos/01-hello-world-inject/)
+- [02 — Node-RED IMU dashboard (Nano ESP32 + MPU6500)](demos/02-node-red-imu-dashboard/)
 
-More are listed in [`ROADMAP.md`](ROADMAP.md). A running progress log lives in
-[`PROGRESS.md`](PROGRESS.md).
+## License
 
-## Talks
-
-| Date | Title |
-| ---- | ----- |
-| 2026-05 | [Node-RED as a rapid integration layer for embedded](talks/2026-05-node-red-embedded-logger/) |
-
-## Layout
-
-```
-demos/      self-contained demo projects, numbered
-talks/      slides, notes and material from talks/workshops
-docs/       cross-cutting setup guides and references
-```
-
-## Licensing
-
-- Demo code and documentation in this repository are released under the
-  [MIT license](LICENSE) unless stated otherwise.
-- Some firmware examples include vendor-generated code (for example
-  STMicroelectronics CubeMX, Nordic Semiconductor SDK, Zephyr modules).
-  That code remains under its respective vendor license; only the surrounding
-  glue and configuration in this repository is MIT.
+MIT — see [LICENSE](LICENSE). Vendor-generated firmware code keeps its
+original license.

@@ -1,0 +1,43 @@
+[
+    {
+        "id": "tab_demo1",
+        "type": "tab",
+        "label": "Demo 1 — timestamp -> debug",
+        "disabled": false,
+        "info": "Hello-world: inject (1 s) -> debug sidebar."
+    },
+    {
+        "id": "inject_demo1",
+        "type": "inject",
+        "z": "tab_demo1",
+        "name": "every 1 s",
+        "props": [{ "p": "payload" }],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 160,
+        "wires": [["debug_demo1"]]
+    },
+    {
+        "id": "debug_demo1",
+        "type": "debug",
+        "z": "tab_demo1",
+        "name": "timestamp",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 160,
+        "wires": []
+    }
+]
